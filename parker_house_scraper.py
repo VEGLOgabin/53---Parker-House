@@ -275,63 +275,6 @@ class ProductSpider(scrapy.Spider):
                     }
                 )
 
-    # def __init__(self, input_file='utilities/products-links.csv', output_file='output/products-data.csv', *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     self.input_file = input_file
-    #     self.output_file = output_file
-    #     os.makedirs('output', exist_ok=True)
-    #     self.csv_file = open(self.output_file, 'a', newline='', encoding='utf-8')
-    #     self.csv_writer = csv.DictWriter(self.csv_file, fieldnames=self.columns)
-    #     if os.stat(self.output_file).st_size == 0:
-    #         self.csv_writer.writeheader()
-
-    #     self.scraped_links = set()
-    #     self.scraped_data = []
-
-    #     # Load already scraped data
-    #     if os.path.exists(self.output_file):
-    #         with open(self.output_file, 'r', encoding='utf-8') as f:
-    #             reader = csv.DictReader(f)
-    #             for row in reader:
-    #                 self.scraped_links.add(row['ITEM_URL'])
-    #                 self.scraped_data.append(row)
-
-    # def start_requests(self):
-    #     self.logger.info("Spider started. Reading product links from CSV file.")
-    #     with open(self.input_file, 'r', encoding='utf-8') as f:
-    #         reader = csv.DictReader(f)
-    #         for row in reader:
-    #             product_link = row['product_link']
-    #             category_name = row['category_name']
-    #             collection_name = row['collection_name']
-    #             subcategory_name = row["subcategory_name"]
-
-    #             # Check if the product is already scraped
-    #             if product_link in self.scraped_links:
-    #                 scraped_product = next((item for item in self.scraped_data if item['ITEM_URL'] == product_link), None)
-    #                 if scraped_product:
-    #                     if collection_name not in scraped_product['COLLECTION'] or category_name not in scraped_product['CATEGORY1'] or subcategory_name not in scraped_product['CATEGORY2'] :
-    #                         new_product_data = scraped_product.copy()
-    #                         new_product_data['COLLECTION'] = collection_name
-    #                         new_product_data['CATEGORY1'] = category_name
-    #                         new_product_data['CATEGORY2'] = subcategory_name
-    #                         self.scraped_data.append(new_product_data)
-    #                         self.csv_writer.writerow(new_product_data)
-    #                         self.logger.info(f"Updated product with new collection or category: {product_link}")
-    #                 else:
-    #                     self.logger.warning(f"Product link found in scraped_links but not in scraped_data: {product_link}")
-    #             else:
-    #                 yield scrapy.Request(
-    #                     url=product_link,
-    #                     callback=self.parse,
-    #                     meta={
-    #                         'category_name': category_name,
-    #                         'subcategory_name': subcategory_name,
-    #                         'collection_name': collection_name,
-    #                         'product_link': product_link
-    #                     }
-    #                 )
-
     def parse(self, response):
         self.logger.info(f"Parsing product: {response.url}")
         features = ""
@@ -360,12 +303,6 @@ class ProductSpider(scrapy.Spider):
                     product_title = product_title.text.strip()
             except AttributeError:
                 product_title = ""
-
-            # try:
-            #     products_img = soup.find_all("a", class_="fancybox")
-            #     products_images = list(set(["https:" + item.get("href") for item in products_img]))
-            # except AttributeError:
-            #     products_images = []
 
             try:
                 width = soup.find("td", text="Width").find_next_sibling("td").text.strip()
@@ -967,7 +904,7 @@ def run_spiders():
     # scrape_navbar_to_csv()
     # get_collections_products()
     process = CrawlerProcess()
-    # process.crawl(ProductSpider)
+    process.crawl(ProductSpider)
     # process.crawl(ProductDynamicallySpider)
     process.start()
 
